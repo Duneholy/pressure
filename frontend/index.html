@@ -1,0 +1,552 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>THE PRESSURE</title>
+    <link rel="icon" type="image/png" href="/assets/logo.png" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="/assets/styles.css?v=20260617" />
+  </head>
+  <body class="page-bg">
+    <header class="topbar">
+      <div class="topbar__inner">
+        <div class="brand">
+          <img class="brand__logo" src="/assets/logo.png" alt="The Pressure logo" />
+          <div>
+            <div class="brand__name">THE PRESSURE</div>
+            <div class="brand__sub mono">// internal task tracker //</div>
+          </div>
+        </div>
+        <div class="topbar__actions">
+          <button type="button" id="logoutBtn" class="btn btn--ghost btn--sm hidden">Выйти</button>
+          <button type="button" id="openSettingsBtn" class="btn btn--ghost btn--sm">Настройки</button>
+        </div>
+      </div>
+    </header>
+
+    <div class="app-strip">
+      <div class="app-strip__inner">
+        <div class="tabs app-main-tabs" role="tablist" aria-label="Режим приложения">
+          <button type="button" data-app-view="pressure" class="app-main-tab tab active" role="tab" aria-selected="true">
+            Pressure tracker
+          </button>
+          <button type="button" data-app-view="task" class="app-main-tab tab" role="tab" aria-selected="false">
+            Task tracker
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <main class="app-shell">
+      <div id="viewPressure" class="app-view">
+      <section class="hero">
+        <pre class="ascii-deco" aria-hidden="true">::::::::::::::....::::....::::....::::::::::::::....::::....::::....::::::::::::::....::::....::::....::::::::::::::....::::....::::....::::::::::::::....::::....::::....</pre>
+        <span class="eyebrow">// Dashboard</span>
+        <h1>PM трекер: просроченные и потерянные задачи</h1>
+        <p class="hero__sub">
+          Подсвечивает зависания по сотрудникам, считает время ожидания в реальном времени
+          и помогает быстрее закрывать блокеры в проектах.
+        </p>
+        <pre class="ascii-deco ascii-deco--soft" aria-hidden="true">▓▒░▒▓▒░▒▓▒░▒▓▒░▒▓▒░▒▓▒░▒▓▒░▒▓▒░▒▓▒░▒▓▒░▒▓▒░▒▓▒░▒▓▒░▒▓▒░▒▓▒░▒▓▒░▒▓▒░▒▓▒░▒▓▒░▒▓▒░▒▓▒░▒▓▒░▒▓▒░▒▓▒░▒▓▒░▒▓▒░▒▓▒░▒▓▒░▒▓▒░▒▓▒░▒▓▒░▒▓</pre>
+      </section>
+
+      <section class="panel panel--danger" aria-labelledby="wallTitle">
+        <div class="section-header">
+          <div class="section-header__lead">
+            <span class="eyebrow">// Critical ──── 01</span>
+            <div class="panel__title-row">
+              <span class="dot dot--red" aria-hidden="true"></span>
+              <h2 id="wallTitle">The Wall of Shame</h2>
+              <pre class="ascii-deco ascii-deco--tail" aria-hidden="true">[!] ─ [!] ─ [!] ─ [!]</pre>
+            </div>
+            <p id="wallSubtitle" class="muted">Сотрудники с активными ожиданиями ≥ 10 суток. Сортировка: задач → max delay.</p>
+          </div>
+        </div>
+        <div id="wallOfShame" class="shame-list"></div>
+      </section>
+
+      <section class="panel" aria-labelledby="projectsTitle">
+        <div class="section-header">
+          <div class="section-header__lead">
+            <span class="eyebrow">// Projects ──── 02</span>
+            <h2 id="projectsTitle">Проекты</h2>
+            <p class="muted">Кликните по проекту, чтобы открыть его задачи в Backlog ниже.</p>
+          </div>
+          <button id="openProjectModalBtn" class="btn btn--primary">+ Добавить проект</button>
+        </div>
+
+        <div class="toolbar">
+          <div class="tabs" role="tablist">
+            <button data-tab="active" class="project-tab tab" role="tab">Active</button>
+            <button data-tab="finished" class="project-tab tab" role="tab">Done / On Hold</button>
+          </div>
+        </div>
+
+        <div id="projectsList" class="project-rows"></div>
+      </section>
+
+      <section class="panel" aria-labelledby="tasksTitle">
+        <div class="section-header">
+          <div class="section-header__lead">
+            <span class="eyebrow">// Backlog ──── 03</span>
+            <h2 id="tasksTitle">Задачи проекта</h2>
+            <p id="tasksSub" class="muted">Выберите проект, чтобы увидеть его задачи.</p>
+          </div>
+          <button id="openTaskModalBtn" class="btn btn--primary" disabled>+ Добавить задачу</button>
+        </div>
+        <div id="tasksContainer" class="cards"></div>
+      </section>
+
+      <section class="panel" aria-labelledby="teamTitle">
+        <div class="section-header">
+          <div class="section-header__lead">
+            <span class="eyebrow">// TEAM ──── 04</span>
+            <h2 id="teamTitle">Команда</h2>
+            <p class="muted">Активные сотрудники по отделам. Нажми на сотрудника, чтобы посмотреть его задачи в работе.</p>
+          </div>
+        </div>
+        <div id="teamContainer" class="team-list"></div>
+      </section>
+
+      <pre class="ascii-deco ascii-deco--footer" aria-hidden="true">▓▒░▒▓▒░▒▓▒░▒▓▒░▒▓▒░▒▓▒░▒▓▒░▒▓▒░▒▓▒░▒▓▒░▒▓▒░▒▓▒░▒▓▒░▒▓▒░▒▓▒░▒▓▒░▒▓▒░▒▓▒░▒▓▒░▒▓▒░▒▓▒░▒▓▒░▒▓▒░▒▓▒░▒▓▒░▒▓▒░▒▓▒░▒▓
+::::::::::::....::::....::::....::::::::::::....::::....::::....::::::::::::....::::....::::....::::::::
+░ THE PRESSURE :: keep the timers ticking ░</pre>
+      </div>
+
+      <div id="viewTaskTracker" class="app-view hidden">
+        <section class="hero">
+          <pre class="ascii-deco" aria-hidden="true">::::::::::::::....::::....::::....::::::::::::::....::::....::::....::::::::::::::....::::....::::....::::::::::::::....::::....::::....::::::::::::::....::::....::::....</pre>
+          <span class="eyebrow">// Task tracker</span>
+          <h1>Таск трекер: задачи в фокусе</h1>
+          <p class="hero__sub">
+            Учет задач по проектам и дедлайнов, планирование спринтов.
+          </p>
+          <pre class="ascii-deco ascii-deco--soft" aria-hidden="true">▓▒░▒▓▒░▒▓▒░▒▓▒░▒▓▒░▒▓▒░▒▓▒░▒▓▒░▒▓▒░▒▓▒░▒▓▒░▒▓▒░▒▓▒░▒▓▒░▒▓▒░▒▓▒░▒▓▒░▒▓▒░▒▓▒░▒▓▒░▒▓▒░▒▓▒░▒▓▒░▒▓▒░▒▓▒░▒▓▒░▒▓▒░▒▓▒░▒▓▒░▒▓▒░▒▓▒░▒▓</pre>
+        </section>
+
+        <section class="panel" aria-labelledby="focusTitle">
+          <div class="section-header">
+            <div class="section-header__lead">
+              <span class="eyebrow">// Focus ──── 01</span>
+              <h2 id="focusTitle">Текущий спринт</h2>
+              <p class="muted">
+                Задачи из общего списка: название, описание, ссылка, проект. Дни пн–пт задают порядок карточек (ближе к
+                понедельнику — выше). Нажмите на карточку, чтобы открыть редактор.
+              </p>
+            </div>
+            <button type="button" id="openFocusPickerBtn" class="btn btn--primary">+ Добавить в фокус</button>
+          </div>
+          <div id="focusTasksContainer" class="focus-grid"></div>
+        </section>
+
+        <section class="panel" aria-labelledby="ttProjectsTitle">
+          <div class="section-header">
+            <div class="section-header__lead">
+              <span class="eyebrow">// Projects ──── 02</span>
+              <h2 id="ttProjectsTitle">Проекты</h2>
+              <p class="muted">Кликните по проекту, чтобы открыть его задачи в Backlog ниже.</p>
+            </div>
+            <button type="button" id="ttOpenProjectModalBtn" class="btn btn--primary">+ Добавить проект</button>
+          </div>
+
+          <div class="toolbar">
+            <div class="tabs" role="tablist">
+              <button type="button" data-tt-tab="active" class="tt-project-tab tab" role="tab">Active</button>
+              <button type="button" data-tt-tab="finished" class="tt-project-tab tab" role="tab">Done / On Hold</button>
+            </div>
+          </div>
+
+          <div id="ttProjectsList" class="project-rows"></div>
+        </section>
+
+        <section class="panel" aria-labelledby="ttTasksTitle">
+          <div class="section-header">
+            <div class="section-header__lead">
+              <span class="eyebrow">// Backlog ──── 03</span>
+              <h2 id="ttTasksTitle">Задачи проекта</h2>
+              <p id="ttTasksSub" class="muted">Выберите проект, чтобы увидеть его задачи.</p>
+            </div>
+            <button type="button" id="ttOpenTaskModalBtn" class="btn btn--primary" disabled>+ Добавить задачу</button>
+          </div>
+          <div id="ttTasksContainer" class="cards"></div>
+        </section>
+      </div>
+    </main>
+
+    <div id="projectModal" class="modal hidden" aria-hidden="true">
+      <div class="modal-box" role="dialog" aria-modal="true" aria-labelledby="projectModalTitle">
+        <div class="modal-header">
+          <div>
+            <span id="projectModalEyebrow" class="eyebrow">// New project</span>
+            <h3 id="projectModalTitle">Новый проект</h3>
+          </div>
+          <button class="btn btn--ghost btn--sm modal-close" aria-label="Закрыть" data-close="projectModal">×</button>
+        </div>
+        <div class="form">
+          <div class="field">
+            <label class="label" for="projectName">Название</label>
+            <input id="projectName" class="input" placeholder="Название проекта" />
+          </div>
+          <div class="field">
+            <label class="label" for="projectDescription">Описание</label>
+            <textarea id="projectDescription" class="textarea" placeholder="Краткое описание"></textarea>
+          </div>
+          <div class="form__row form__row--2">
+            <div class="field">
+              <label class="label" for="projectLink">Ссылка</label>
+              <input id="projectLink" class="input" placeholder="https://..." />
+            </div>
+            <div class="field">
+              <label class="label" for="projectStatus">Статус</label>
+              <select id="projectStatus" class="select">
+                <option value="active">active</option>
+                <option value="done">done</option>
+                <option value="on_hold">on_hold</option>
+              </select>
+            </div>
+          </div>
+          <div class="modal__footer modal__footer--split">
+            <div class="footer-left">
+              <button id="deleteProjectBtn" class="btn btn--danger hidden">Удалить проект</button>
+            </div>
+            <div class="footer-right">
+              <button class="btn btn--ghost modal-close" data-close="projectModal">Отмена</button>
+              <button id="saveProjectBtn" class="btn btn--primary">Создать проект</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="taskModal" class="modal hidden" aria-hidden="true">
+      <div class="modal-box" role="dialog" aria-modal="true" aria-labelledby="taskModalTitle">
+        <div class="modal-header">
+          <div>
+            <span id="taskModalEyebrow" class="eyebrow">// New task</span>
+            <h3 id="taskModalTitle">Новая задача</h3>
+          </div>
+          <button class="btn btn--ghost btn--sm modal-close" aria-label="Закрыть" data-close="taskModal">×</button>
+        </div>
+        <div class="form">
+          <div class="form__row form__row--2">
+            <div class="field">
+              <label class="label" for="taskTitleInput">Название</label>
+              <input id="taskTitleInput" class="input" placeholder="Например: согласовать макет лендинга" />
+            </div>
+            <div class="field">
+              <label class="label" for="taskStatusInput">Статус</label>
+              <select id="taskStatusInput" class="select">
+                <option value="open">open</option>
+                <option value="blocked">blocked</option>
+                <option value="done">done</option>
+              </select>
+            </div>
+          </div>
+          <div class="field">
+            <label class="label" for="taskDescriptionInput">Описание</label>
+            <textarea id="taskDescriptionInput" class="textarea" placeholder="Контекст, ссылки, ожидаемый результат"></textarea>
+          </div>
+          <div class="field">
+            <label class="label" for="taskLinkInput">Ссылка</label>
+            <input id="taskLinkInput" class="input" placeholder="https://..." />
+          </div>
+          <div class="form__row form__row--2">
+            <div class="field">
+              <label class="label" for="taskDeadlineInput">Дедлайн</label>
+              <input id="taskDeadlineInput" type="datetime-local" class="input" />
+            </div>
+            <div class="field">
+              <label class="label" for="taskOwnerInput">Ответственный</label>
+              <select id="taskOwnerInput" class="select"></select>
+            </div>
+          </div>
+          <div class="modal__footer">
+            <button class="btn btn--ghost modal-close" data-close="taskModal">Отмена</button>
+            <button id="saveTaskBtn" class="btn btn--primary">Создать задачу</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="waitModal" class="modal hidden" aria-hidden="true">
+      <div class="modal-box" role="dialog" aria-modal="true" aria-labelledby="waitModalTitle">
+        <div class="modal-header">
+          <div>
+            <span id="waitModalEyebrow" class="eyebrow">// Assign waiter</span>
+            <h3 id="waitModalTitle">Выбрать сотрудника</h3>
+            <p id="waitModalTaskTitle" class="modal__sub"></p>
+          </div>
+          <button class="btn btn--ghost btn--sm modal-close" aria-label="Закрыть" data-close="waitModal">×</button>
+        </div>
+
+        <div class="form">
+          <div class="field">
+            <label class="label" for="waitEmployeeSelect">Существующий сотрудник</label>
+            <select id="waitEmployeeSelect" class="select"></select>
+          </div>
+          <div class="modal__footer" style="justify-content:flex-start">
+            <button id="openNewEmployeeModalBtn" class="btn btn--sm" type="button">Новый сотрудник</button>
+          </div>
+
+          <div class="field">
+            <label class="label" for="waitStartedAt">Время старта ожидания</label>
+            <input id="waitStartedAt" type="datetime-local" class="input" />
+          </div>
+
+          <div class="field">
+            <label class="label" for="waitComment">Комментарий <span class="muted">(опционально)</span></label>
+            <textarea id="waitComment" class="textarea" placeholder="Что именно ждем, чем коллеге помочь"></textarea>
+          </div>
+
+          <div class="modal__footer">
+            <button class="btn btn--ghost modal-close" data-close="waitModal">Отмена</button>
+            <button id="saveWaitBtn" class="btn btn--primary">Сохранить ожидание</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="newEmployeeModal" class="modal hidden" aria-hidden="true">
+      <div class="modal-box modal-box--small" role="dialog" aria-modal="true" aria-labelledby="newEmployeeTitle">
+        <div class="modal-header">
+          <div>
+            <span class="eyebrow">// New employee</span>
+            <h3 id="newEmployeeTitle">Добавить сотрудника</h3>
+          </div>
+          <button class="btn btn--ghost btn--sm modal-close" aria-label="Закрыть" data-close="newEmployeeModal">×</button>
+        </div>
+        <div class="form">
+          <div class="form__row form__row--2">
+            <div class="field">
+              <label class="label" for="newEmployeeLastName">Фамилия</label>
+              <input id="newEmployeeLastName" class="input" placeholder="Иванов" />
+            </div>
+            <div class="field">
+              <label class="label" for="newEmployeeFirstName">Имя</label>
+              <input id="newEmployeeFirstName" class="input" placeholder="Иван" />
+            </div>
+          </div>
+          <div class="field">
+            <label class="label" for="newEmployeeDepartment">Отдел</label>
+            <input id="newEmployeeDepartment" class="input" placeholder="Design / Dev / Legal" />
+          </div>
+          <div class="modal__footer">
+            <button class="btn btn--ghost modal-close" data-close="newEmployeeModal">Отмена</button>
+            <button id="createEmployeeInModalBtn" class="btn btn--primary" type="button">Сохранить сотрудника</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="settingsModal" class="modal hidden" aria-hidden="true">
+      <div class="modal-box" role="dialog" aria-modal="true" aria-labelledby="settingsTitle">
+        <div class="modal-header">
+          <div>
+            <span class="eyebrow">// Settings</span>
+            <h3 id="settingsTitle">Настройки</h3>
+            <p class="modal__sub muted">Удаление сотрудника удаляет и все связанные с ним записи ожиданий в истории.</p>
+          </div>
+          <button class="btn btn--ghost btn--sm modal-close" aria-label="Закрыть" data-close="settingsModal">×</button>
+        </div>
+        <div class="form">
+          <div class="subform">
+            <div class="subform__title">Зоны ожидания (в сутках)</div>
+            <div class="form__row form__row--2">
+              <div class="field">
+                <label class="label" for="zoneWarnDays">Жёлтая зона (от)</label>
+                <input id="zoneWarnDays" class="input" type="number" min="1" step="1" />
+              </div>
+              <div class="field">
+                <label class="label" for="zoneCritDays">Красная зона (от)</label>
+                <input id="zoneCritDays" class="input" type="number" min="1" step="1" />
+              </div>
+            </div>
+            <div class="modal__footer">
+              <button id="saveZonesBtn" class="btn btn--primary" type="button">Сохранить зоны</button>
+            </div>
+          </div>
+
+          <div class="subform" style="margin-top: var(--s-5);">
+            <div class="subform__title">LLM OpenRouter</div>
+            <p class="muted" style="margin-bottom: var(--s-3);">Необходим для генерации сообщений. Ключ хранится локально в вашей БД.</p>
+            <div class="field">
+              <label class="label" for="llmApiKey">API Ключ (sk-or-v1-...)</label>
+              <input id="llmApiKey" class="input" type="password" placeholder="Укажите ключ" />
+            </div>
+            <div class="field" style="margin-top: var(--s-3);">
+              <label class="label" for="llmModel">Модель (например, minimax/minimax-m3)</label>
+              <input id="llmModel" class="input" placeholder="minimax/minimax-m3" />
+            </div>
+            <div class="modal__footer">
+              <button id="saveLlmBtn" class="btn btn--primary" type="button">Сохранить LLM</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="subform__title" style="margin-top: var(--s-5);">Сотрудники</div>
+
+        <div id="settingsEmployeeList" class="settings-list"></div>
+        <div class="modal__footer" style="justify-content: space-between;">
+          <button id="settingsDeleteProfileBtn" class="btn btn--danger" type="button">Удалить профиль</button>
+          <div>
+            <button id="openNewEmployeeFromSettingsBtn" class="btn btn--primary" type="button">+ Новый сотрудник</button>
+            <button class="btn btn--ghost modal-close" data-close="settingsModal">Закрыть</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="editEmployeeModal" class="modal hidden" aria-hidden="true">
+      <div class="modal-box modal-box--small" role="dialog" aria-modal="true" aria-labelledby="editEmployeeTitle">
+        <div class="modal-header">
+          <div>
+            <span class="eyebrow">// Employee</span>
+            <h3 id="editEmployeeTitle">Редактировать сотрудника</h3>
+            <p id="editEmployeeSub" class="modal__sub muted"></p>
+          </div>
+          <button class="btn btn--ghost btn--sm modal-close" aria-label="Закрыть" data-close="editEmployeeModal">×</button>
+        </div>
+        <div class="form">
+          <div class="form__row form__row--2">
+            <div class="field">
+              <label class="label" for="editEmployeeLastName">Фамилия</label>
+              <input id="editEmployeeLastName" class="input" />
+            </div>
+            <div class="field">
+              <label class="label" for="editEmployeeFirstName">Имя</label>
+              <input id="editEmployeeFirstName" class="input" />
+            </div>
+          </div>
+          <div class="field">
+            <label class="label" for="editEmployeeDepartment">Отдел</label>
+            <input id="editEmployeeDepartment" class="input" />
+          </div>
+          <div class="modal__footer">
+            <button class="btn btn--ghost modal-close" data-close="editEmployeeModal">Отмена</button>
+            <button id="saveEmployeeBtn" class="btn btn--primary" type="button">Сохранить</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="wallDetailsModal" class="modal hidden" aria-hidden="true">
+      <div class="modal-box" role="dialog" aria-modal="true" aria-labelledby="wallDetailsTitle">
+        <div class="modal-header">
+          <div>
+            <span class="eyebrow">// Wall details</span>
+            <h3 id="wallDetailsTitle">Задачи сотрудника в красной зоне</h3>
+            <p id="wallDetailsSub" class="modal__sub muted"></p>
+          </div>
+          <button class="btn btn--ghost btn--sm modal-close" aria-label="Закрыть" data-close="wallDetailsModal">×</button>
+        </div>
+        <div id="wallDetailsList" class="settings-list"></div>
+        <div class="modal__footer">
+          <button class="btn btn--ghost modal-close" data-close="wallDetailsModal">Закрыть</button>
+        </div>
+      </div>
+    </div>
+
+    <div id="llmModal" class="modal hidden" aria-hidden="true">
+      <div class="modal-box modal-box--llm" role="dialog" aria-modal="true" aria-labelledby="llmTitle">
+        <div class="modal-header">
+          <div>
+            <span class="eyebrow">// LLM</span>
+            <h3 id="llmTitle">Generate Pressure</h3>
+            <p id="llmSub" class="modal__sub muted"></p>
+          </div>
+          <button class="btn btn--ghost btn--sm modal-close" aria-label="Закрыть" data-close="llmModal">×</button>
+        </div>
+        <div class="field">
+          <label class="label" for="llmText">Сообщение</label>
+          <textarea id="llmText" class="textarea" readonly></textarea>
+        </div>
+        <div class="modal__footer">
+          <button id="llmCopyBtn" class="btn btn--primary">Скопировать</button>
+          <button class="btn btn--ghost modal-close" data-close="llmModal">Закрыть</button>
+        </div>
+      </div>
+    </div>
+
+    <div id="focusPickerModal" class="modal hidden" aria-hidden="true">
+      <div class="modal-box modal-box--small" role="dialog" aria-modal="true" aria-labelledby="focusPickerTitle">
+        <div class="modal-header">
+          <div>
+            <span class="eyebrow">// Focus</span>
+            <h3 id="focusPickerTitle">Добавить задачу в фокус</h3>
+            <p class="modal__sub muted">Выберите задачу из общего списка (уже в фокусе не показываются).</p>
+          </div>
+          <button class="btn btn--ghost btn--sm modal-close" aria-label="Закрыть" data-close="focusPickerModal">×</button>
+        </div>
+        <div id="focusPickerList" class="focus-picker-list"></div>
+        <div class="modal__footer">
+          <button class="btn btn--ghost modal-close" data-close="focusPickerModal">Закрыть</button>
+        </div>
+      </div>
+    </div>
+
+    <div id="confirmModal" class="modal hidden" aria-hidden="true">
+      <div class="modal-box modal-box--small modal-box--confirm" role="dialog" aria-modal="true" aria-labelledby="confirmTitle">
+        <div class="modal-header">
+          <div>
+            <span class="eyebrow">// Confirm</span>
+            <h3 id="confirmTitle">Подтвердите действие</h3>
+          </div>
+          <button class="btn btn--ghost btn--sm modal-close" aria-label="Закрыть" data-close="confirmModal">×</button>
+        </div>
+        <p id="confirmBody" class="text-body"></p>
+        <div class="modal__footer">
+          <button id="confirmCancelBtn" class="btn btn--ghost modal-close" data-close="confirmModal">Отмена</button>
+          <button id="confirmActionBtn" class="btn btn--danger">Удалить</button>
+        </div>
+      </div>
+    </div>
+
+    <div id="authModal" class="modal" aria-hidden="false">
+      <div class="modal-box modal-box--small" role="dialog" aria-modal="true" aria-labelledby="authTitle">
+        <div class="modal-header">
+          <div>
+            <span class="eyebrow">// Access</span>
+            <h3 id="authTitle">Вход в приложение</h3>
+            <p class="modal__sub">Авторизуйтесь или создайте пользователя</p>
+          </div>
+        </div>
+
+        <div class="toolbar" style="margin-top: 0; margin-bottom: var(--s-4);">
+          <div class="tabs" role="tablist">
+            <button data-auth-tab="login" class="auth-tab tab active" role="tab">Вход</button>
+            <button data-auth-tab="register" class="auth-tab tab" role="tab">Регистрация</button>
+          </div>
+        </div>
+
+        <div class="form">
+          <div class="field" id="authUsersField" style="display: none;">
+            <label class="label" for="authUsernameSelect">Пользователь</label>
+            <select id="authUsernameSelect" class="select"></select>
+          </div>
+          <div class="field" id="authUsernameField">
+            <label class="label" for="authUsername">Логин</label>
+            <input id="authUsername" class="input" autocomplete="username" />
+          </div>
+          <div class="field">
+            <label class="label" for="authPassword">Пароль</label>
+            <input id="authPassword" type="password" class="input" autocomplete="current-password" />
+          </div>
+          <div id="authError" class="auth-error hidden" role="alert"></div>
+          <div class="modal__footer" style="justify-content: space-between;">
+            <button id="authDeleteBtn" class="btn btn--danger hidden" type="button">Удалить аккаунт</button>
+            <button id="authLoginBtn" class="btn btn--primary" type="button">Войти</button>
+            <button id="authRegisterBtn" class="btn btn--primary hidden" type="button">Создать</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script src="/assets/app.js?v=20260617"></script>
+  </body>
+</html>
