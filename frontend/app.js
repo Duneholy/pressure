@@ -18,9 +18,11 @@ const FOCUS_WEEKDAYS = [
   { key: "wed", label: "ср" },
   { key: "thu", label: "чт" },
   { key: "fri", label: "пт" },
+  { key: "sat", label: "сб" },
+  { key: "sun", label: "вс" },
 ];
 
-/** Порядок от понедельника к пятнице; без дней — в конец списка (как «после пт», ближе к вс) */
+/** Порядок от понедельника к воскресенью; без дней — в конец списка */
 const FOCUS_WEEKDAY_SORT_INDEX = Object.fromEntries(FOCUS_WEEKDAYS.map((d, i) => [d.key, i]));
 const FOCUS_SORT_NO_DAYS = 99;
 
