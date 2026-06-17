@@ -46,5 +46,6 @@ echo Откройте в браузере: http://127.0.0.1:8000
 echo.
 echo Нажмите CTRL+C в этом окне для завершения работы сервера.
 echo ========================================================
+start /b cmd /c "timeout /t 3 /nobreak >nul & start http://127.0.0.1:8000"
 uvicorn backend.main:app --port 8000
 pause
